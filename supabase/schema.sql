@@ -52,7 +52,6 @@ create table if not exists pembayaran (
   created_at timestamptz default now()
 );
 
-
 alter table profiles enable row level security;
 alter table kamar enable row level security;
 alter table penyewa enable row level security;

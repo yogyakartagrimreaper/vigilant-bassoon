@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { savePenyewa, deletePenyewa } from "../actions";
+import { savePenyewa, deletePenyewa, tautkanAkun, putuskanAkun } from "../actions";
 
 type Tenant = {
   id: string;
@@ -9,6 +9,7 @@ type Tenant = {
   kontak: string | null;
   kamar_id: string | null;
   mulai_sewa: string | null;
+  user_id: string | null;
 };
 type Room = { id: string; nomor: string };
 
@@ -21,6 +22,26 @@ export default function PenyewaManager({
 }) {
   const [editing, setEditing] = useState<Tenant | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [linkTarget, setLinkTarget] = useState<Tenant | null>(null);
+  const [linkEmail, setLinkEmail] = useState("");
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkMsg, setLinkMsg] = useState<{ success: boolean; message: string } | null>(null);
+
+  async function handleLink() {
+    if (!linkTarget) return;
+    setLinkLoading(true);
+    setLinkMsg(null);
+    const res = await tautkanAkun(linkTarget.id, linkEmail);
+    setLinkLoading(false);
+    setLinkMsg(res);
+    if (res.success) {
+      setTimeout(() => {
+        setLinkTarget(null);
+        setLinkEmail("");
+        setLinkMsg(null);
+      }, 1200);
+    }
+  }
 
   function roomLabel(id: string | null) {
     const r = rooms.find((r) => r.id === id);
@@ -57,6 +78,7 @@ export default function PenyewaManager({
               <th className="px-3.5 py-3">Kamar</th>
               <th className="px-3.5 py-3">Kontak</th>
               <th className="px-3.5 py-3">Mulai Sewa</th>
+              <th className="px-3.5 py-3">Akun</th>
               <th className="px-3.5 py-3"></th>
             </tr>
           </thead>
@@ -67,6 +89,32 @@ export default function PenyewaManager({
                 <td className="px-3.5 py-3 text-ink-soft">{roomLabel(t.kamar_id) ?? "Belum ada kamar"}</td>
                 <td className="px-3.5 py-3">{t.kontak || "-"}</td>
                 <td className="px-3.5 py-3">{t.mulai_sewa || "-"}</td>
+                <td className="px-3.5 py-3">
+                  {t.user_id ? (
+                    <div className="flex items-center gap-2">
+                      <span className="badge lunas">Tertaut</span>
+                      <button
+                        onClick={async () => {
+                          if (confirm("Putuskan tautan akun ini?")) await putuskanAkun(t.id);
+                        }}
+                        className="text-[11px] text-ink-soft underline hover:text-terracotta"
+                      >
+                        Putuskan
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setLinkTarget(t);
+                        setLinkEmail("");
+                        setLinkMsg(null);
+                      }}
+                      className="text-[11.5px] px-2.5 py-1.5 rounded-md border border-brass/40 text-brass hover:bg-brass/10"
+                    >
+                      🔗 Tautkan Akun
+                    </button>
+                  )}
+                </td>
                 <td className="px-3.5 py-3">
                   <div className="flex gap-1.5">
                     <button
@@ -150,6 +198,55 @@ export default function PenyewaManager({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {linkTarget && (
+        <div className="fixed inset-0 bg-navy/45 flex items-center justify-center p-5 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 className="font-display text-lg text-navy mb-1.5">Tautkan Akun</h3>
+            <p className="text-ink-soft text-sm mb-4">
+              Masukkan email akun Anak Kos milik <strong>{linkTarget.nama}</strong>. Pastikan mereka
+              sudah mendaftar terlebih dahulu di halaman login.
+            </p>
+            <div>
+              <label className="block text-xs font-medium text-ink-soft mb-1.5">Email Anak Kos</label>
+              <input
+                type="email"
+                value={linkEmail}
+                onChange={(e) => setLinkEmail(e.target.value)}
+                className="k-input"
+                placeholder="nama@email.com"
+              />
+            </div>
+
+            {linkMsg && (
+              <p className={`text-xs mt-3 ${linkMsg.success ? "text-sage" : "text-terracotta"}`}>
+                {linkMsg.success ? "✅ " : "⚠️ "}
+                {linkMsg.message}
+              </p>
+            )}
+
+            <div className="flex gap-2 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setLinkTarget(null);
+                  setLinkMsg(null);
+                }}
+                className="flex-1 py-2.5 rounded-lg border border-line text-sm font-medium"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleLink}
+                disabled={linkLoading || !linkEmail}
+                className="flex-1 py-2.5 rounded-lg bg-brass text-white text-sm font-semibold disabled:opacity-60"
+              >
+                {linkLoading ? "Memeriksa…" : "Tautkan"}
+              </button>
+            </div>
           </div>
         </div>
       )}

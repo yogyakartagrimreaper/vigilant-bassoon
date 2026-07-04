@@ -69,12 +69,10 @@ create policy "profiles_select_own_or_pemilik" on profiles
 create policy "profiles_update_own" on profiles
   for update using (id = auth.uid());
 
-
 create policy "kamar_select_all" on kamar
   for select using (auth.role() = 'authenticated');
 create policy "kamar_write_pemilik" on kamar
   for all using (public.is_pemilik()) with check (public.is_pemilik());
-
 
 create policy "penyewa_select_pemilik" on penyewa
   for select using (public.is_pemilik());
@@ -82,7 +80,6 @@ create policy "penyewa_select_own" on penyewa
   for select using (user_id = auth.uid());
 create policy "penyewa_write_pemilik" on penyewa
   for all using (public.is_pemilik()) with check (public.is_pemilik());
-
 
 create policy "pembayaran_all_pemilik" on pembayaran
   for all using (public.is_pemilik()) with check (public.is_pemilik());
@@ -94,7 +91,6 @@ create policy "pembayaran_insert_own" on pembayaran
   for insert with check (
     exists (select 1 from penyewa where penyewa.id = pembayaran.penyewa_id and penyewa.user_id = auth.uid())
   );
-
 
 insert into kamar (nomor, tipe, harga, status) values
   ('01', 'Standar', 750000, 'kosong'),

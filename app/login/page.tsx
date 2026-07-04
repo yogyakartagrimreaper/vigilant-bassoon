@@ -57,7 +57,7 @@ export default function LoginPage() {
           <div className="w-8 h-8 rounded-lg bg-brass text-white font-display font-bold flex items-center justify-center">
             K
           </div>
-          <h1 className="font-display text-xl font-semibold text-navy">Kos Ledger</h1>
+          <h1 className="font-display text-xl font-semibold text-navy">Jersey Kos</h1>
         </div>
         <p className="text-ink-soft text-sm mb-7">
           {mode === "masuk" ? "Masuk ke akunmu." : "Buat akun baru untuk mulai."}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { daftarAkun } from "./action";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [kodePemilik, setKodePemilik] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,13 +31,16 @@ export default function LoginPage() {
         return;
       }
     } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: fullName, role } },
-      });
-      if (error) {
-        setError(error.message);
+      const formData = new FormData();
+      formData.set("fullName", fullName);
+      formData.set("email", email);
+      formData.set("password", password);
+      formData.set("role", role);
+      formData.set("kodePemilik", kodePemilik);
+
+      const result = await daftarAkun(formData);
+      if (!result.success) {
+        setError(result.message);
         setLoading(false);
         return;
       }
@@ -52,7 +57,7 @@ export default function LoginPage() {
           <div className="w-8 h-8 rounded-lg bg-brass text-white font-display font-bold flex items-center justify-center">
             K
           </div>
-          <h1 className="font-display text-xl font-semibold text-navy">Jersey Kos</h1>
+          <h1 className="font-display text-xl font-semibold text-navy">Kos Ledger</h1>
         </div>
         <p className="text-ink-soft text-sm mb-7">
           {mode === "masuk" ? "Masuk ke akunmu." : "Buat akun baru untuk mulai."}
@@ -123,6 +128,26 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+
+              {role === "pemilik" && (
+                <div>
+                  <label className="block text-xs font-medium text-ink-soft mb-1.5">
+                    Kode Pendaftaran Pemilik
+                  </label>
+                  <input
+                    required
+                    type="password"
+                    value={kodePemilik}
+                    onChange={(e) => setKodePemilik(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-lg border border-line text-sm focus:outline-none focus:border-brass"
+                    placeholder="Kode rahasia dari pemilik kos"
+                  />
+                  <p className="text-[11px] text-ink-soft mt-1.5">
+                    Kode ini hanya diketahui oleh pemilik kos yang sah. Kalau kamu penyewa, pilih
+                    "Anak Kos" di atas.
+                  </p>
+                </div>
+              )}
             </>
           )}
 

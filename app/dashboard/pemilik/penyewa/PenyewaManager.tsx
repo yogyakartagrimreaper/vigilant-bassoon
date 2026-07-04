@@ -185,6 +185,12 @@ export default function PenyewaManager({
                   className="k-input"
                 />
               </div>
+              {!editing && (
+                <label className="flex items-center gap-2.5 text-sm text-ink-soft bg-paper px-3 py-2.5 rounded-lg">
+                  <input type="checkbox" name="buat_tagihan" defaultChecked className="w-4 h-4" />
+                  Langsung buat tagihan bulan ini (sesuai harga kamar)
+                </label>
+              )}
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"

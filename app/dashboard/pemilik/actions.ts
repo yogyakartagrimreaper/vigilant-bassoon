@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+function bulanIni() {
+  const bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  const d = new Date();
+  return `${bulan[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 // ---------- KAMAR ----------
 export async function saveKamar(formData: FormData) {
   const supabase = createClient();
@@ -13,6 +19,7 @@ export async function saveKamar(formData: FormData) {
     harga: Number(formData.get("harga")) || 0,
     status: formData.get("status") as string,
   };
+
   if (id) {
     await supabase.from("kamar").update(payload).eq("id", id);
   } else {
@@ -32,12 +39,17 @@ export async function savePenyewa(formData: FormData) {
   const supabase = createClient();
   const id = formData.get("id") as string;
   const kamarId = (formData.get("kamar_id") as string) || null;
+  const buatTagihan = formData.get("buat_tagihan") === "on";
+
   const payload = {
     nama: formData.get("nama") as string,
     kontak: formData.get("kontak") as string,
     kamar_id: kamarId,
     mulai_sewa: (formData.get("mulai_sewa") as string) || null,
   };
+
+  let penyewaId = id;
+
   if (id) {
     const { data: prev } = await supabase.from("penyewa").select("kamar_id").eq("id", id).single();
     if (prev?.kamar_id && prev.kamar_id !== kamarId) {
@@ -45,11 +57,27 @@ export async function savePenyewa(formData: FormData) {
     }
     await supabase.from("penyewa").update(payload).eq("id", id);
   } else {
-    await supabase.from("penyewa").insert(payload);
+    const { data: inserted } = await supabase.from("penyewa").insert(payload).select("id").single();
+    penyewaId = inserted?.id ?? "";
   }
+
   if (kamarId) {
     await supabase.from("kamar").update({ status: "terisi" }).eq("id", kamarId);
   }
+
+  if (!id && buatTagihan && kamarId && penyewaId) {
+    const { data: room } = await supabase.from("kamar").select("harga").eq("id", kamarId).single();
+    if (room) {
+      await supabase.from("pembayaran").insert({
+        penyewa_id: penyewaId,
+        bulan: bulanIni(),
+        jumlah: room.harga,
+        status: "belum",
+      });
+      revalidatePath("/dashboard/pemilik/pembayaran");
+    }
+  }
+
   revalidatePath("/dashboard/pemilik/penyewa");
   revalidatePath("/dashboard/pemilik/kamar");
 }
@@ -114,6 +142,7 @@ export async function savePembayaran(formData: FormData) {
     status: formData.get("status") as string,
     tanggal_bayar: (formData.get("tanggal_bayar") as string) || null,
   };
+
   if (id) {
     await supabase.from("pembayaran").update(payload).eq("id", id);
   } else {

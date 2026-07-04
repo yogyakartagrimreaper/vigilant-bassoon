@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #eaede7;
+  color: #23262b;
+}
+
+.badge {
+  @apply px-2.5 py-1 rounded-full text-xs font-semibold inline-block;
+}
+.badge.lunas {
+  @apply bg-sage/15 text-sage;
+}
+.badge.belum {
+  @apply bg-terracotta/15 text-terracotta;
+}
+
+.k-input {
+  @apply w-full px-3 py-2.5 rounded-lg border border-line text-sm focus:outline-none focus:border-brass;
+}

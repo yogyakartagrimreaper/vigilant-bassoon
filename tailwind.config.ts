@@ -8,13 +8,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: { DEFAULT: "#1B2A4A", light: "#2C4370" },
-        paper: "#EAEDE7",
-        brass: { DEFAULT: "#A9822F", light: "#E4C767" },
-        terracotta: "#B84C3C",
-        sage: "#4F7A5C",
-        ink: { DEFAULT: "#23262B", soft: "#6B7280" },
-        line: "#D8DCD2",
+        navy: { DEFAULT: "#4A2545", light: "#6E3F6A" },
+        paper: "#F3EEE3",
+        brass: { DEFAULT: "#C9A227", light: "#E8C766" },
+        terracotta: "#8B2E2E",
+        sage: "#707A45",
+        ink: { DEFAULT: "#2B2622", soft: "#7A7266" },
+        line: "#DDD5C4",
       },
       fontFamily: {
         display: ["Fraunces", "serif"],

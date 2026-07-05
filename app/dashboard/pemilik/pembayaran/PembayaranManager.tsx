@@ -62,7 +62,7 @@ export default function PembayaranManager({
       ) : (
         <table className="w-full bg-white rounded-xl border border-line overflow-hidden text-sm">
           <thead>
-            <tr className="bg-[#F4F5F0] text-left text-[11px] uppercase tracking-wide text-ink-soft">
+            <tr className="bg-[#EFE7D3] text-left text-[11px] uppercase tracking-wide text-ink-soft">
               <th className="px-3.5 py-3">Penyewa</th>
               <th className="px-3.5 py-3">Bulan</th>
               <th className="px-3.5 py-3">Jumlah</th>
